@@ -1,4 +1,4 @@
-# Phase 4 Full-Stack Application Project Template
+# Phase 5 Full-Stack Application: Amplify Console
 
 ## Learning Goals
 
