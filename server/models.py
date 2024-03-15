@@ -59,6 +59,7 @@ class Mapping(db.Model, SerializerMixin):
 class Smartsheet(db.Model, SerializerMixin):
     __tablename__ = "smartsheets"
 
+    id = db.Column(db.Integer, primary_key=True)
     smartsheet_id = db.Column(db.String, primary_key=True)
     sheetname = db.Column(db.String)
 
@@ -75,6 +76,7 @@ class Smartsheet(db.Model, SerializerMixin):
 class Googlesheet(db.Model, SerializerMixin):
     __tablename__ = "googlesheets"
 
+    id = db.Column(db.Integer, primary_key=True)
     googlesheet_id = db.Column(db.String, primary_key=True)
     mapping_id = db.Column(db.Integer, db.ForeignKey("mappings.id"))
     sheetname = db.Column(db.String)
@@ -85,24 +87,6 @@ class Googlesheet(db.Model, SerializerMixin):
 
     # add serialization rules
     serialize_rules = ("-googlesheets.mapping", "-googlesheets.smartsheet")
-
-    # add validation
-
-
-class GooglesheetCell(db.Model, SerializerMixin):
-    __tablename__ = "googlesheet_cells"
-
-    id = db.Column(db.Integer, primary_key=True)
-    googlesheet_id = db.Column(db.String, db.ForeignKey("googlesheets.googlesheet_id"))
-    row_id = db.Column(db.String)
-    column_id = db.Column(db.String)
-    value = db.Column(db.String)
-
-    # add relationships
-    googlesheet = db.relationship("Googlesheet", backref="cells")
-
-    # add serialization rules
-    serialize_rules = ("-googlesheet_cells.googlesheet",)
 
     # add validation
 
@@ -121,6 +105,25 @@ class SmartsheetCell(db.Model, SerializerMixin):
 
     # add serialization rules
     serialize_rules = ("-smartsheet_cells.smartsheet",)
+
+    # add validation
+
+
+class GooglesheetCell(db.Model, SerializerMixin):
+    __tablename__ = "googlesheet_cells"
+
+    id = db.Column(db.Integer, primary_key=True)
+    googlesheet_id = db.Column(db.String, db.ForeignKey("googlesheets.googlesheet_id"))
+    tab_id = db.Column(db.String)
+    row_id = db.Column(db.String)
+    column_id = db.Column(db.String)
+    value = db.Column(db.String)
+
+    # add relationships
+    googlesheet = db.relationship("Googlesheet", backref="cells")
+
+    # add serialization rules
+    serialize_rules = ("-googlesheet_cells.googlesheet",)
 
     # add validation
 
