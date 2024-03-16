@@ -9,33 +9,15 @@ from sqlalchemy_serializer import SerializerMixin
 # Models go here!
 
 
-class User(db.Model, SerializerMixin):
-    __tablename__ = "users"
-
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String)
-    password_hash = db.Column(db.String)
-
-    # add relationships
-    projects = db.relationship("Project", backref="project_admin")
-    mappings = association_proxy("projects", "mappings")
-
-    # add serialization rules
-    serialize_rules = ("-users.projects", "-users.mappings")
-
-    # add validation
-
-
 class Project(db.Model, SerializerMixin):
     __tablename__ = "projects"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     name = db.Column(db.String)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     # add relationships
-    project_admin = db.relationship("User", backref="projects")
+    mappings = db.relationship("Mapping", backref="project")
 
     # add serialization rules
     serialize_rules = ("-projects.project_admin",)
@@ -49,6 +31,7 @@ class Mapping(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     smartsheet_id = db.Column(db.String, db.ForeignKey("smartsheets.smartsheet_id"))
+    name = db.Column(db.String)
 
     # add relationships
     project = db.relationship("Project", backref="mappings")
