@@ -9,12 +9,24 @@ from sqlalchemy_serializer import SerializerMixin
 # Models go here!
 
 
+class Product(db.Model, SerializerMixin):
+    __tablename__ = "products"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+
+    # add relationships
+    mappings = db.relationship("Mapping", backref="product")
+
+    # add serialization rules
+    serialize_rules = ("-products.mappings",)
+
+
 class Project(db.Model, SerializerMixin):
     __tablename__ = "projects"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     # add relationships
     mappings = db.relationship("Mapping", backref="project")
@@ -29,6 +41,7 @@ class Mapping(db.Model, SerializerMixin):
     __tablename__ = "mappings"
 
     id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"))
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     smartsheet_id = db.Column(db.String, db.ForeignKey("smartsheets.smartsheet_id"))
     googlesheet_id = db.Column(db.String, db.ForeignKey("googlesheets.googlesheet_id"))
@@ -36,6 +49,7 @@ class Mapping(db.Model, SerializerMixin):
 
     # add relationships
     project = db.relationship("Project", backref="mappings")
+    product = db.relationship("Product", backref="mappings")
     smartsheet = db.relationship("Smartsheet", backref="mappings")
     googlesheet = db.relationship("Googlesheet", backref="mappings")
 
@@ -49,10 +63,10 @@ class Smartsheet(db.Model, SerializerMixin):
 
     # add relationships
     mappings = db.relationship("Mapping", backref="smartsheets")
-    googlesheets = association_proxy("mappings", "googlesheets")
+    googlesheet = association_proxy("mappings", "googlesheets")
 
     # add serialization rules
-    serialize_rules = ("-smartsheets.mappings", "-smartsheets.googlesheets")
+    serialize_rules = ("-smartsheets.mappings", "-smartsheets.googlesheet")
 
     # add validation
 
@@ -65,7 +79,7 @@ class Googlesheet(db.Model, SerializerMixin):
     sheetname = db.Column(db.String)
 
     # add relationships
-    mapping = db.relationship("Mapping", backref="googlesheets")
+    mappings = db.relationship("Mapping", backref="googlesheets")
     smartsheet = association_proxy("mapping", "smartsheet")
 
     # add serialization rules
@@ -85,9 +99,10 @@ class SmartsheetCell(db.Model, SerializerMixin):
 
     # add relationships
     smartsheet = db.relationship("Smartsheet", backref="cells")
+    mappings = association_proxy("smartsheet", "mappings")
 
     # add serialization rules
-    serialize_rules = ("-smartsheet_cells.smartsheet",)
+    serialize_rules = ("-smartsheet_cells.smartsheet", "-smartsheet_cells.mappings")
 
     # add validation
 
@@ -104,9 +119,10 @@ class GooglesheetCell(db.Model, SerializerMixin):
 
     # add relationships
     googlesheet = db.relationship("Googlesheet", backref="cells")
+    mappings = association_proxy("googlesheet", "mappings")
 
     # add serialization rules
-    serialize_rules = ("-googlesheet_cells.googlesheet",)
+    serialize_rules = ("-googlesheet_cells.googlesheet", "-googlesheet_cells.mappings")
 
     # add validation
 
