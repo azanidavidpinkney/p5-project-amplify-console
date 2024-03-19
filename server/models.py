@@ -31,12 +31,13 @@ class Mapping(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     smartsheet_id = db.Column(db.String, db.ForeignKey("smartsheets.smartsheet_id"))
+    googlesheet_id = db.Column(db.String, db.ForeignKey("googlesheets.googlesheet_id"))
     name = db.Column(db.String)
 
     # add relationships
     project = db.relationship("Project", backref="mappings")
     smartsheet = db.relationship("Smartsheet", backref="mappings")
-    googlesheets = db.relationship("Googlesheet", backref="mappings")
+    googlesheet = db.relationship("Googlesheet", backref="mappings")
 
 
 class Smartsheet(db.Model, SerializerMixin):
@@ -61,7 +62,6 @@ class Googlesheet(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     googlesheet_id = db.Column(db.String, primary_key=True)
-    mapping_id = db.Column(db.Integer, db.ForeignKey("mappings.id"))
     sheetname = db.Column(db.String)
 
     # add relationships
