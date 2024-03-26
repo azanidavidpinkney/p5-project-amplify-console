@@ -9,19 +9,6 @@ from sqlalchemy_serializer import SerializerMixin
 # Models go here!
 
 
-class Product(db.Model, SerializerMixin):
-    __tablename__ = "products"
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-
-    # add relationships
-    mappings = db.relationship("Mapping", backref="product")
-
-    # add serialization rules
-    serialize_rules = ("-products.mappings",)
-
-
 class Project(db.Model, SerializerMixin):
     __tablename__ = "projects"
 
@@ -32,7 +19,7 @@ class Project(db.Model, SerializerMixin):
     mappings = db.relationship("Mapping", backref="project")
 
     # add serialization rules
-    serialize_rules = ("-projects.project_admin",)
+    serialize_rules = ("-projects.mappings",)
 
     # add validation
 
@@ -41,7 +28,6 @@ class Mapping(db.Model, SerializerMixin):
     __tablename__ = "mappings"
 
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey("products.id"))
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     smartsheet_id = db.Column(db.String, db.ForeignKey("smartsheets.smartsheet_id"))
     googlesheet_id = db.Column(db.String, db.ForeignKey("googlesheets.googlesheet_id"))
@@ -49,7 +35,6 @@ class Mapping(db.Model, SerializerMixin):
 
     # add relationships
     project = db.relationship("Project", backref="mappings")
-    product = db.relationship("Product", backref="mappings")
     smartsheet = db.relationship("Smartsheet", backref="mappings")
     googlesheet = db.relationship("Googlesheet", backref="mappings")
 
@@ -59,7 +44,7 @@ class Smartsheet(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     smartsheet_id = db.Column(db.String, primary_key=True)
-    sheetname = db.Column(db.String)
+    smartsheet_name = db.Column(db.String)
 
     # add relationships
     mappings = db.relationship("Mapping", backref="smartsheets")
@@ -76,7 +61,9 @@ class Googlesheet(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     googlesheet_id = db.Column(db.String, primary_key=True)
-    sheetname = db.Column(db.String)
+    googlesheet_name = db.Column(db.String)
+    googlesheet_tab_id = db.Column(db.String)
+    googlesheet_tab_name = db.Column(db.String)
 
     # add relationships
     mappings = db.relationship("Mapping", backref="googlesheets")
@@ -112,7 +99,6 @@ class GooglesheetCell(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     googlesheet_id = db.Column(db.String, db.ForeignKey("googlesheets.googlesheet_id"))
-    tab_id = db.Column(db.String)
     row_id = db.Column(db.String)
     column_id = db.Column(db.String)
     value = db.Column(db.String)
